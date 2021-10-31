@@ -1,0 +1,850 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+                  #######################################################
+                  #                        -***-                        #
+                  #          Department of theory and spectroscopy      #
+                  #               Directorship: Frank Neese             #
+                  #        Max Planck Institute fuer Kohlenforschung    #
+                  #                Kaiser Wilhelm Platz 1               #
+                  #                 D-45470 Muelheim/Ruhr               #
+                  #                      Germany                        #
+                  #                                                     #
+                  #                  All rights reserved                #
+                  #                        -***-                        #
+                  #######################################################
+
+
+                         Program Version 4.2.0 -  RELEASE  -
+
+
+ With contributions from (in alphabetic order):
+   Daniel Aravena         : Magnetic Suceptibility
+   Michael Atanasov       : Ab Initio Ligand Field Theory (pilot matlab implementation)
+   Alexander A. Auer      : GIAO ZORA, VPT2
+   Ute Becker             : Parallelization
+   Giovanni Bistoni       : ED, misc. LED, open-shell LED, HFLED
+   Martin Brehm           : Molecular dynamics
+   Dmytro Bykov           : SCF Hessian
+   Vijay G. Chilkuri      : MRCI spin determinant printing, contributions to CSF-ICE
+   Dipayan Datta          : RHF DLPNO-CCSD density
+   Achintya Kumar Dutta   : EOM-CC, STEOM-CC
+   Dmitry Ganyushin       : Spin-Orbit,Spin-Spin,Magnetic field MRCI
+   Miquel Garcia          : C-PCM Hessian, Gaussian charge scheme
+   Yang Guo               : DLPNO-NEVPT2, CIM, IAO-localization
+   Andreas Hansen         : Spin unrestricted coupled pair/coupled cluster methods
+   Benjamin Helmich-Paris : CASSCF linear response (MC-RPA)
+   Lee Huntington         : MR-EOM, pCC
+   Robert Izsak           : Overlap fitted RIJCOSX, COSX-SCS-MP3, EOM
+   Christian Kollmar      : KDIIS, OOCD, Brueckner-CCSD(T), CCSD density
+   Simone Kossmann        : Meta GGA functionals, TD-DFT gradient, OOMP2, MP2 Hessian
+   Martin Krupicka        : AUTO-CI
+   Lucas Lang             : DCDCAS
+   Dagmar Lenk            : GEPOL surface, SMD
+   Dimitrios Liakos       : Extrapolation schemes; Compound Job, initial MDCI parallelization
+   Dimitrios Manganas     : Further ROCIS development; embedding schemes
+   Dimitrios Pantazis     : SARC Basis sets
+   Taras Petrenko         : DFT Hessian,TD-DFT gradient, ASA, ECA, R-Raman, ABS, FL, XAS/XES, NRVS
+   Peter Pinski           : DLPNO-MP2, DLPNO-MP2 Gradient
+   Christoph Reimann      : Effective Core Potentials
+   Marius Retegan         : Local ZFS, SOC
+   Christoph Riplinger    : Optimizer, TS searches, QM/MM, DLPNO-CCSD(T), (RO)-DLPNO pert. Triples
+   Tobias Risthaus        : Range-separated hybrids, TD-DFT gradient, RPA, STAB
+   Michael Roemelt        : Original ROCIS implementation
+   Masaaki Saitow         : Open-shell DLPNO-CCSD energy and density
+   Barbara Sandhoefer     : DKH picture change effects
+   Avijit Sen             : IP-ROCIS
+   Kantharuban Sivalingam : CASSCF convergence, NEVPT2, FIC-MRCI
+   Bernardo de Souza      : ESD, SOC TD-DFT
+   Georgi Stoychev        : AutoAux, RI-MP2 NMR
+   Willem Van den Heuvel  : Paramagnetic NMR
+   Boris Wezisla          : Elementary symmetry handling
+   Frank Wennmohs         : Technical directorship
+
+
+ We gratefully acknowledge several colleagues who have allowed us to
+ interface, adapt or use parts of their codes:
+   Stefan Grimme, W. Hujo, H. Kruse,             : VdW corrections, initial TS optimization,
+                  C. Bannwarth                     DFT functionals, gCP, sTDA/sTD-DF
+   Ed Valeev, F. Pavosevic, A. Kumar             : LibInt (2-el integral package), F12 methods
+   Garnet Chan, S. Sharma, J. Yang, R. Olivares  : DMRG
+   Ulf Ekstrom                                   : XCFun DFT Library
+   Mihaly Kallay                                 : mrcc  (arbitrary order and MRCC methods)
+   Andreas Klamt, Michael Diedenhofen            : otool_cosmo (COSMO solvation model)
+   Jiri Pittner, Ondrej Demel                    : Mk-CCSD
+   Frank Weinhold                                : gennbo (NPA and NBO analysis)
+   Christopher J. Cramer and Donald G. Truhlar   : smd solvation model
+   Lars Goerigk                                  : TD-DFT with DH, B97 family of functionals
+   V. Asgeirsson, H. Jonsson                     : NEB implementation
+   FAccTs GmbH                                   : IRC, NEB, NEB-TS, Multilevel, MM, QM/MM, CI optimization
+   S Lehtola, MJT Oliveira, MAL Marques          : LibXC Library
+
+
+ Your calculation uses the libint2 library for the computation of 2-el integrals
+ For citations please refer to: http://libint.valeyev.net
+
+ Your ORCA version has been built with support for libXC version: 4.2.3
+ For citations please refer to: https://tddft.org/programs/libxc/
+
+ This ORCA versions uses:
+   CBLAS   interface :  Fast vector & matrix operations
+   LAPACKE interface :  Fast linear algebra routines
+   SCALAPACK package :  Parallel linear algebra routines
+
+
+Your calculation utilizes the DFT-NL dispersion correction.
+Cite in your paper:
+Vydrov, O. A.; Van Voorhis, T. J. Chem. Phys. 2010, 133, 244103
+Hujo, W.; Grimme, S. J. Chem. Theory Comput. 2011, 7, 3866 
+   
+
+----- Orbital basis set information -----
+Your calculation utilizes the basis: def2-TZVPPD
+   F. Weigend and R. Ahlrichs, Phys. Chem. Chem. Phys. 7, 3297 (2005).
+   D. Rappoport and F. Furche, J. Chem. Phys. 133 134105 (2010).
+
+----- AuxJK basis set information -----
+Your calculation utilizes the auxiliary basis: def2/JK
+   H-Ba, Hf-Rn: F. Weigend, J. Comput. Chem. 29, 167 (2008).
+
+================================================================================
+                                        WARNINGS
+                       Please study these warnings very carefully!
+================================================================================
+
+
+INFO   : the flag for use of LIBINT has been found!
+
+================================================================================
+                                       INPUT FILE
+================================================================================
+NAME = TMB01_R2.in
+|  1> #
+|  2> # TMB01_R2 wB97X-V/Def2-TZVPPD
+|  3> #
+|  4> ! wb97x-v def2-tzvppd def2/jk grid4 nofinalgrid
+|  5> 
+|  6> *xyz 0 1
+|  7> C        0.000000    0.000000    0.598253 
+|  8> C        0.000000    0.000000   -0.598253 
+|  9> H        0.000000    0.000000    1.662161 
+| 10> H        0.000000    0.000000   -1.662161 
+| 11> *
+| 12> 
+| 13> %maxcore 5000
+| 14> 
+| 15> %pal
+| 16> nprocs = 24
+| 17> end
+| 18> 
+| 19> 
+| 20>                          ****END OF INPUT****
+================================================================================
+
+                       ****************************
+                       * Single Point Calculation *
+                       ****************************
+
+---------------------------------
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  C      0.000000    0.000000    0.598253
+  C      0.000000    0.000000   -0.598253
+  H      0.000000    0.000000    1.662161
+  H      0.000000    0.000000   -1.662161
+
+----------------------------
+CARTESIAN COORDINATES (A.U.)
+----------------------------
+  NO LB      ZA    FRAG     MASS         X           Y           Z
+   0 C     6.0000    0    12.011    0.000000    0.000000    1.130534
+   1 C     6.0000    0    12.011    0.000000    0.000000   -1.130534
+   2 H     1.0000    0     1.008    0.000000    0.000000    3.141029
+   3 H     1.0000    0     1.008    0.000000    0.000000   -3.141029
+
+--------------------------------
+INTERNAL COORDINATES (ANGSTROEM)
+--------------------------------
+ C      0   0   0     0.000000000000     0.00000000     0.00000000
+ C      1   0   0     1.196506000000     0.00000000     0.00000000
+ H      1   2   0     1.063908000000   179.99999879     0.00000000
+ H      2   1   3     1.063908000000   179.99999879     0.00000000
+
+---------------------------
+INTERNAL COORDINATES (A.U.)
+---------------------------
+ C      0   0   0     0.000000000000     0.00000000     0.00000000
+ C      1   0   0     2.261068657594     0.00000000     0.00000000
+ H      1   2   0     2.010494751688   179.99999879     0.00000000
+ H      2   1   3     2.010494751688   179.99999879     0.00000000
+
+---------------------
+BASIS SET INFORMATION
+---------------------
+There are 2 groups of distinct atoms
+
+ Group   1 Type C   : 12s6p3d1f contracted to 6s3p3d1f pattern {621111/411/111/1}
+ Group   2 Type H   : 5s3p1d contracted to 3s3p1d pattern {311/111/1}
+
+Atom   0C    basis set group =>   1
+Atom   1C    basis set group =>   1
+Atom   2H    basis set group =>   2
+Atom   3H    basis set group =>   2
+----------------------------------
+AUXILIARY/JK BASIS SET INFORMATION
+----------------------------------
+There are 2 groups of distinct atoms
+
+ Group   1 Type C   : 14s10p6d2f1g contracted to 10s8p5d1f1g pattern {5111111111/31111111/21111/2/1}
+ Group   2 Type H   : 4s2p2d contracted to 2s2p2d pattern {31/11/11}
+
+Atom   0C    basis set group =>   1
+Atom   1C    basis set group =>   1
+Atom   2H    basis set group =>   2
+Atom   3H    basis set group =>   2
+
+
+           ************************************************************
+           *        Program running with 24 parallel MPI-processes    *
+           *              working on a common directory               *
+           ************************************************************
+------------------------------------------------------------------------------
+                           ORCA GTO INTEGRAL CALCULATION
+------------------------------------------------------------------------------
+
+                         BASIS SET STATISTICS AND STARTUP INFO
+
+ # of primitive gaussian shells          ...   62
+ # of primitive gaussian functions       ...  142
+ # of contracted shells                  ...   40
+ # of contracted basis functions         ...  108
+ Highest angular momentum                ...    3
+ Maximum contraction depth               ...    6
+ Integral package used                   ... LIBINT
+ Integral threshhold            Thresh   ...  1.000e-10
+ Primitive cut-off              TCut     ...  1.000e-11
+
+
+------------------------------ INTEGRAL EVALUATION ----------------------------
+
+
+ * One electron integrals 
+ Pre-screening matrix                    ... done
+ Shell pair data                         ... done (   0.000 sec)
+
+
+
+           ************************************************************
+           *        Program running with 24 parallel MPI-processes    *
+           *              working on a common directory               *
+           ************************************************************
+-------------------------------------------------------------------------------
+                                 ORCA SCF
+-------------------------------------------------------------------------------
+
+------------
+SCF SETTINGS
+------------
+Hamiltonian:
+ Density Functional     Method          .... DFT(GTOs)
+ Exchange Functional    Exchange        .... WB97X-V
+ Correlation Functional Correlation     .... WB97X-V
+ Gradients option       PostSCFGGA      .... off
+ Hybrid DFT is turned on
+   Fraction HF Exchange ScalHFX         ....  0.167000
+   Scaling of DF-GGA-X  ScalDFX         ....  0.000000
+   Scaling of DF-GGA-C  ScalDFC         ....  1.000000
+   Scaling of DF-LDA-C  ScalLDAC        ....  1.000000
+   Perturbative correction              ....  0.000000
+   Density functional embedding theory  .... OFF
+ Long-range corrected/Screened/Range-Separated Hybrid DFT is turned on
+   Amount of maximum screened exact exchange              ....  0.833000
+   Range separation parameter mu (erf(mu*r12)/r12)        ....  0.300000
+   NL short-range parameter             ....  6.000000
+   NL long-range parameter              ....  0.010000
+
+
+General Settings:
+ Integral files         IntName         .... TMB01_R2
+ Hartree-Fock type      HFTyp           .... RHF
+ Total Charge           Charge          ....    0
+ Multiplicity           Mult            ....    1
+ Number of Electrons    NEL             ....   14
+ Basis Dimension        Dim             ....  108
+ Nuclear Repulsion      ENuc            ....     24.8588143174 Eh
+
+Convergence Acceleration:
+ DIIS                   CNVDIIS         .... on
+   Start iteration      DIISMaxIt       ....    12
+   Startup error        DIISStart       ....  0.200000
+   # of expansion vecs  DIISMaxEq       ....     5
+   Bias factor          DIISBfac        ....   1.050
+   Max. coefficient     DIISMaxC        ....  10.000
+ Newton-Raphson         CNVNR           .... off
+ SOSCF                  CNVSOSCF        .... on
+   Start iteration      SOSCFMaxIt      ....   150
+   Startup grad/error   SOSCFStart      ....  0.003300
+ Level Shifting         CNVShift        .... on
+   Level shift para.    LevelShift      ....    0.2500
+   Turn off err/grad.   ShiftErr        ....    0.0010
+ Zerner damping         CNVZerner       .... off
+ Static damping         CNVDamp         .... on
+   Fraction old density DampFac         ....    0.7000
+   Max. Damping (<1)    DampMax         ....    0.9800
+   Min. Damping (>=0)   DampMin         ....    0.0000
+   Turn off err/grad.   DampErr         ....    0.1000
+ Fernandez-Rico         CNVRico         .... off
+
+SCF Procedure:
+ Maximum # iterations   MaxIter         ....   125
+ SCF integral mode      SCFMode         .... Direct
+   Integral package                     .... LIBINT
+ Reset frequency        DirectResetFreq ....    20
+ Integral Threshold     Thresh          ....  1.000e-10 Eh
+ Primitive CutOff       TCut            ....  1.000e-11 Eh
+
+Convergence Tolerance:
+ Convergence Check Mode ConvCheckMode   .... Total+1el-Energy
+ Convergence forced     ConvForced      .... 0
+ Energy Change          TolE            ....  1.000e-06 Eh
+ 1-El. energy change                    ....  1.000e-03 Eh
+ Orbital Gradient       TolG            ....  5.000e-05
+ Orbital Rotation angle TolX            ....  5.000e-05
+ DIIS Error             TolErr          ....  1.000e-06
+
+
+Diagonalization of the overlap matrix:
+Smallest eigenvalue                        ... 5.098e-07
+Time for diagonalization                   ...    0.003 sec
+Threshold for overlap eigenvalues          ... 1.000e-08
+Number of eigenvalues below threshold      ... 0
+Time for construction of square roots      ...    0.001 sec
+Total time needed                          ...    0.005 sec
+
+-------------------
+DFT GRID GENERATION
+-------------------
+
+General Integration Accuracy     IntAcc      ...  4.670
+Radial Grid Type                 RadialGrid  ... Gauss-Chebyshev
+Angular Grid (max. acc.)         AngularGrid ... Lebedev-302
+Angular grid pruning method      GridPruning ... 3 (G Style)
+Weight generation scheme         WeightScheme... Becke
+Basis function cutoff            BFCut       ...    1.0000e-10
+Integration weight cutoff        WCut        ...    1.0000e-14
+Grids for H and He will be reduced by one unit
+
+# of grid points (after initial pruning)     ...  19212 (   0.0 sec)
+# of grid points (after weights+screening)   ...  18848 (   0.0 sec)
+nearest neighbour list constructed           ...    0.0 sec
+Grid point re-assignment to atoms done       ...    0.0 sec
+Grid point division into batches done        ...    0.1 sec
+Reduced shell lists constructed in    0.1 sec
+
+Total number of grid points                  ...    18848
+Total number of batches                      ...      296
+Average number of points per batch           ...       63
+Average number of grid points per atom       ...     4712
+Average number of shells per batch           ...    25.07 (62.68%)
+Average number of basis functions per batch  ...    68.64 (63.56%)
+Average number of large shells per batch     ...    20.07 (80.06%)
+Average number of large basis fcns per batch ...    53.64 (78.15%)
+Maximum spatial batch extension              ...  18.61, 18.61,  2.08 au
+Average spatial batch extension              ...   0.50,  0.50,  0.09 au
+
+Time for grid setup =    0.115 sec
+
+------------------------------
+INITIAL GUESS: MODEL POTENTIAL
+------------------------------
+Loading Hartree-Fock densities                     ... done
+Calculating cut-offs                               ... done
+Setting up the integral package                    ... done
+Initializing the effective Hamiltonian             ... done
+Starting the Coulomb interaction                   ... done (   0.0 sec)
+Reading the grid                                   ... done
+Mapping shells                                     ... done
+Starting the XC term evaluation                    ... done (   0.0 sec)
+  promolecular density results
+     # of electrons  =     13.999014444
+     EX              =     -7.158984317
+     EC              =     -0.539185087
+     EX+EC           =     -7.698169404
+Transforming the Hamiltonian                       ... done (   0.0 sec)
+Diagonalizing the Hamiltonian                      ... done (   0.0 sec)
+Back transforming the eigenvectors                 ... done (   0.0 sec)
+Now organizing SCF variables                       ... done
+                      ------------------
+                      INITIAL GUESS DONE (   0.2 sec)
+                      ------------------
+--------------
+SCF ITERATIONS
+--------------
+ITER       Energy         Delta-E        Max-DP      RMS-DP      [F,P]     Damp
+               ***  Starting incremental Fock matrix formation  ***
+  0    -77.3708204648   0.000000000000 0.47581993  0.00909596  0.2567910 0.7000
+  1    -77.3774868648  -0.006666400037 0.36686866  0.00705773  0.1783216 0.7000
+                               ***Turning on DIIS***
+  2    -77.3816260208  -0.004139156047 0.27023765  0.00523680  0.1232637 0.7000
+  3    -77.3842992870  -0.002673266177 0.67767762  0.01330139  0.0849918 0.0000
+                      *** Initiating the SOSCF procedure ***
+                           *** Shutting down DIIS ***
+                      *** Re-Reading the Fockian *** 
+                      *** Removing any level shift *** 
+ITER      Energy       Delta-E        Grad      Rot      Max-DP    RMS-DP
+  4    -77.39031932  -0.0060200284  0.001576  0.001576  0.036991  0.000802
+               *** Restarting incremental Fock matrix formation ***
+  5    -77.39035003  -0.0000307136  0.000605  0.000982  0.015853  0.000365
+  6    -77.39035636  -0.0000063356  0.000182  0.000420  0.004918  0.000115
+                 **** Energy Check signals convergence ****
+              ***Rediagonalizing the Fockian in SOSCF/NRSCF***
+
+               *****************************************************
+               *                     SUCCESS                       *
+               *           SCF CONVERGED AFTER   7 CYCLES          *
+               *****************************************************
+
+
+Setting up the DFT-NL grid :
+
+General Integration Accuracy     IntAcc      ...  4.340
+Radial Grid Type                 RadialGrid  ... Gauss-Chebyshev
+Angular Grid (max. acc.)         AngularGrid ... Lebedev-110
+Angular grid pruning method      GridPruning ... 3 (G Style)
+Weight generation scheme         WeightScheme... Becke
+Basis function cutoff            BFCut       ...    1.0000e-10
+Integration weight cutoff        WCut        ...    1.0000e-14
+Grids for H and He will be reduced by one unit
+
+# of grid points (after initial pruning)     ...   4900 (   0.0 sec)
+# of grid points (after weights+screening)   ...   4822 (   0.0 sec)
+nearest neighbour list constructed           ...    0.0 sec
+Grid point re-assignment to atoms done       ...    0.0 sec
+Grid point division into batches done        ...    0.0 sec
+Reduced shell lists constructed in    0.0 sec
+
+Total number of grid points                  ...     4822
+Total number of batches                      ...       78
+Average number of points per batch           ...       61
+Average number of grid points per atom       ...     1206
+Average number of shells per batch           ...    28.00 (70.00%)
+Average number of basis functions per batch  ...    80.80 (74.81%)
+Average number of large shells per batch     ...    25.60 (91.43%)
+Average number of large basis fcns per batch ...    74.40 (92.08%)
+Maximum spatial batch extension              ...  19.01, 31.36,  1.96 au
+Average spatial batch extension              ...   0.65,  1.31,  0.10 au
+
+Final grid set up in    0.0 sec
+
+-------------------------------------------------------------------------------
+                         DFT-NL dispersion correction                          
+-------------------------------------------------------------------------------
+
+SC Energy -77.390356956 
+NL    Energy 0.057751190 
+SC+NL Energy -77.332605766 
+NL done in    0.0 sec
+-------------------------------------------------------------------------------
+
+----------------
+TOTAL SCF ENERGY
+----------------
+
+Total Energy       :          -77.33260577 Eh           -2104.32718 eV
+
+Components:
+Nuclear Repulsion  :           24.85881432 Eh             676.44273 eV
+Electronic Energy  :         -102.19142008 Eh           -2780.76991 eV
+One Electron Energy:         -152.08452313 Eh           -4138.43027 eV
+Two Electron Energy:           49.89310305 Eh            1357.66036 eV
+
+Virial components:
+Potential Energy   :         -154.36367932 Eh           -4200.44926 eV
+Kinetic Energy     :           77.03107356 Eh            2096.12208 eV
+Virial Ratio       :            2.00391442
+
+
+DFT components:
+N(Alpha)           :        6.999997088995 electrons
+N(Beta)            :        6.999997088995 electrons
+N(Total)           :       13.999994177991 electrons
+E(X)               :       -7.346272442247 Eh       
+E(C)               :       -0.549283002893 Eh       
+NL Energy, E(C,NL) :        0.057751189643 Eh       
+E(XC)              :       -7.837804255496 Eh       
+DFET-embed. en.    :        0.000000000000 Eh       
+
+---------------
+SCF CONVERGENCE
+---------------
+
+  Last Energy change         ...   -5.9100e-07  Tolerance :   1.0000e-06
+  Last MAX-Density change    ...    4.4636e-04  Tolerance :   1.0000e-05
+  Last RMS-Density change    ...    1.3100e-05  Tolerance :   1.0000e-06
+  Last Orbital Gradient      ...    1.7220e-05  Tolerance :   5.0000e-05
+  Last Orbital Rotation      ...    2.4508e-05  Tolerance :   5.0000e-05
+
+             **** THE GBW FILE WAS UPDATED (TMB01_R2.gbw) ****
+             **** DENSITY FILE WAS UPDATED (TMB01_R2.scfp) ****
+             **** ENERGY FILE WAS UPDATED (TMB01_R2.en.tmp) ****
+             **** THE GBW FILE WAS UPDATED (TMB01_R2.gbw) ****
+             **** DENSITY FILE WAS UPDATED (TMB01_R2.scfp) ****
+----------------
+ORBITAL ENERGIES
+----------------
+
+  NO   OCC          E(Eh)            E(eV) 
+   0   2.0000     -10.281085      -279.7625 
+   1   2.0000     -10.278410      -279.6898 
+   2   2.0000      -0.888762       -24.1844 
+   3   2.0000      -0.689252       -18.7555 
+   4   2.0000      -0.612221       -16.6594 
+   5   2.0000      -0.403077       -10.9683 
+   6   2.0000      -0.403077       -10.9683 
+   7   0.0000       0.067833         1.8458 
+   8   0.0000       0.084527         2.3001 
+   9   0.0000       0.103414         2.8140 
+  10   0.0000       0.103414         2.8140 
+  11   0.0000       0.142510         3.8779 
+  12   0.0000       0.199015         5.4155 
+  13   0.0000       0.212556         5.7839 
+  14   0.0000       0.212556         5.7839 
+  15   0.0000       0.261419         7.1136 
+  16   0.0000       0.261420         7.1136 
+  17   0.0000       0.273378         7.4390 
+  18   0.0000       0.273378         7.4390 
+  19   0.0000       0.279042         7.5931 
+  20   0.0000       0.298785         8.1304 
+  21   0.0000       0.347807         9.4643 
+  22   0.0000       0.363078         9.8798 
+  23   0.0000       0.363082         9.8800 
+  24   0.0000       0.368774        10.0348 
+  25   0.0000       0.386739        10.5237 
+  26   0.0000       0.386739        10.5237 
+  27   0.0000       0.393133        10.6977 
+  28   0.0000       0.393133        10.6977 
+  29   0.0000       0.531897        14.4737 
+  30   0.0000       0.531897        14.4737 
+  31   0.0000       0.552297        15.0288 
+  32   0.0000       0.592586        16.1251 
+  33   0.0000       0.689915        18.7735 
+  34   0.0000       0.696950        18.9650 
+  35   0.0000       0.696950        18.9650 
+  36   0.0000       0.710473        19.3330 
+  37   0.0000       0.784953        21.3596 
+  38   0.0000       0.864545        23.5255 
+  39   0.0000       0.864546        23.5255 
+  40   0.0000       0.925135        25.1742 
+  41   0.0000       0.925135        25.1742 
+  42   0.0000       0.958846        26.0915 
+  43   0.0000       1.091412        29.6988 
+  44   0.0000       1.092620        29.7317 
+  45   0.0000       1.092620        29.7317 
+  46   0.0000       1.133526        30.8448 
+  47   0.0000       1.133535        30.8450 
+  48   0.0000       1.408314        38.3222 
+  49   0.0000       1.408314        38.3222 
+  50   0.0000       1.467895        39.9435 
+  51   0.0000       1.561637        42.4943 
+  52   0.0000       1.600785        43.5596 
+  53   0.0000       1.600785        43.5596 
+  54   0.0000       1.695680        46.1418 
+  55   0.0000       1.730540        47.0904 
+  56   0.0000       1.730540        47.0904 
+  57   0.0000       1.846993        50.2592 
+  58   0.0000       1.905211        51.8434 
+  59   0.0000       2.095477        57.0208 
+  60   0.0000       2.095477        57.0208 
+  61   0.0000       2.277018        61.9608 
+  62   0.0000       2.471631        67.2565 
+  63   0.0000       2.539110        69.0927 
+  64   0.0000       2.539112        69.0928 
+  65   0.0000       2.628559        71.5267 
+  66   0.0000       2.628559        71.5267 
+  67   0.0000       2.681350        72.9632 
+  68   0.0000       2.920207        79.4629 
+  69   0.0000       2.920207        79.4629 
+  70   0.0000       3.044951        82.8573 
+  71   0.0000       3.044951        82.8573 
+  72   0.0000       3.107295        84.5538 
+  73   0.0000       3.107295        84.5538 
+  74   0.0000       3.126828        85.0853 
+  75   0.0000       3.126835        85.0855 
+  76   0.0000       3.140399        85.4546 
+  77   0.0000       3.140401        85.4547 
+  78   0.0000       3.141189        85.4761 
+  79   0.0000       3.150412        85.7271 
+  80   0.0000       3.284201        89.3676 
+  81   0.0000       3.321087        90.3714 
+  82   0.0000       3.321087        90.3714 
+  83   0.0000       3.323331        90.4324 
+  84   0.0000       3.323341        90.4327 
+  85   0.0000       3.718933       101.1973 
+  86   0.0000       3.718934       101.1973 
+  87   0.0000       3.821082       103.9769 
+  88   0.0000       4.079892       111.0195 
+  89   0.0000       4.079892       111.0195 
+  90   0.0000       4.172060       113.5275 
+  91   0.0000       4.172060       113.5275 
+  92   0.0000       4.316091       117.4468 
+  93   0.0000       4.316094       117.4469 
+  94   0.0000       4.339712       118.0896 
+  95   0.0000       4.633619       126.0872 
+  96   0.0000       4.732874       128.7881 
+  97   0.0000       4.732874       128.7881 
+  98   0.0000       5.278419       143.6331 
+  99   0.0000       5.490238       149.3970 
+ 100   0.0000       5.507833       149.8758 
+ 101   0.0000       5.507833       149.8758 
+ 102   0.0000       5.560269       151.3026 
+ 103   0.0000       5.560269       151.3026 
+ 104   0.0000       6.288656       171.1230 
+ 105   0.0000       6.579661       179.0417 
+ 106   0.0000      23.494651       639.3219 
+ 107   0.0000      23.947368       651.6410 
+
+                    ********************************
+                    * MULLIKEN POPULATION ANALYSIS *
+                    ********************************
+
+-----------------------
+MULLIKEN ATOMIC CHARGES
+-----------------------
+   0 C :   -0.070569
+   1 C :   -0.070767
+   2 H :    0.070670
+   3 H :    0.070666
+Sum of atomic charges:    0.0000000
+
+--------------------------------
+MULLIKEN REDUCED ORBITAL CHARGES
+--------------------------------
+  0 C s       :     3.175610  s :     3.175610
+      pz      :     0.895365  p :     2.825167
+      px      :     0.964901
+      py      :     0.964901
+      dz2     :     0.033463  d :     0.062540
+      dxz     :     0.014539
+      dyz     :     0.014539
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+      f0      :     0.001283  f :     0.007251
+      f+1     :     0.002984
+      f-1     :     0.002984
+      f+2     :     0.000000
+      f-2     :     0.000000
+      f+3     :     0.000000
+      f-3     :     0.000000
+  1 C s       :     3.175781  s :     3.175781
+      pz      :     0.895387  p :     2.825189
+      px      :     0.964901
+      py      :     0.964901
+      dz2     :     0.033468  d :     0.062546
+      dxz     :     0.014539
+      dyz     :     0.014539
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+      f0      :     0.001283  f :     0.007251
+      f+1     :     0.002984
+      f-1     :     0.002984
+      f+2     :     0.000000
+      f-2     :     0.000000
+      f+3     :     0.000000
+      f-3     :     0.000000
+  2 H s       :     0.881630  s :     0.881630
+      pz      :     0.012334  p :     0.046880
+      px      :     0.017273
+      py      :     0.017273
+      dz2     :     0.000214  d :     0.000820
+      dxz     :     0.000303
+      dyz     :     0.000303
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+  3 H s       :     0.881633  s :     0.881633
+      pz      :     0.012336  p :     0.046882
+      px      :     0.017273
+      py      :     0.017273
+      dz2     :     0.000214  d :     0.000820
+      dxz     :     0.000303
+      dyz     :     0.000303
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+
+
+                     *******************************
+                     * LOEWDIN POPULATION ANALYSIS *
+                     *******************************
+
+----------------------
+LOEWDIN ATOMIC CHARGES
+----------------------
+   0 C :    0.096248
+   1 C :    0.096248
+   2 H :   -0.096248
+   3 H :   -0.096248
+
+-------------------------------
+LOEWDIN REDUCED ORBITAL CHARGES
+-------------------------------
+  0 C s       :     2.814580  s :     2.814580
+      pz      :     1.121305  p :     2.778159
+      px      :     0.828427
+      py      :     0.828427
+      dz2     :     0.138518  d :     0.276895
+      dxz     :     0.069189
+      dyz     :     0.069189
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+      f0      :     0.018664  f :     0.034118
+      f+1     :     0.007727
+      f-1     :     0.007727
+      f+2     :     0.000000
+      f-2     :     0.000000
+      f+3     :     0.000000
+      f-3     :     0.000000
+  1 C s       :     2.814580  s :     2.814580
+      pz      :     1.121305  p :     2.778159
+      px      :     0.828427
+      py      :     0.828427
+      dz2     :     0.138518  d :     0.276895
+      dxz     :     0.069189
+      dyz     :     0.069189
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+      f0      :     0.018664  f :     0.034118
+      f+1     :     0.007727
+      f-1     :     0.007727
+      f+2     :     0.000000
+      f-2     :     0.000000
+      f+3     :     0.000000
+      f-3     :     0.000000
+  2 H s       :     0.756989  s :     0.756989
+      pz      :     0.137873  p :     0.310934
+      px      :     0.086530
+      py      :     0.086530
+      dz2     :     0.012072  d :     0.028326
+      dxz     :     0.008127
+      dyz     :     0.008127
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+  3 H s       :     0.756989  s :     0.756989
+      pz      :     0.137873  p :     0.310934
+      px      :     0.086530
+      py      :     0.086530
+      dz2     :     0.012072  d :     0.028326
+      dxz     :     0.008127
+      dyz     :     0.008127
+      dx2y2   :     0.000000
+      dxy     :     0.000000
+
+
+                      *****************************
+                      * MAYER POPULATION ANALYSIS *
+                      *****************************
+
+  NA   - Mulliken gross atomic population
+  ZA   - Total nuclear charge
+  QA   - Mulliken gross atomic charge
+  VA   - Mayer's total valence
+  BVA  - Mayer's bonded valence
+  FA   - Mayer's free valence
+
+  ATOM       NA         ZA         QA         VA         BVA        FA
+  0 C      6.0706     6.0000    -0.0706     4.2407     4.2407     0.0000
+  1 C      6.0708     6.0000    -0.0708     4.2409     4.2409     0.0000
+  2 H      0.9293     1.0000     0.0707     1.0298     1.0298     0.0000
+  3 H      0.9293     1.0000     0.0707     1.0298     1.0298     0.0000
+
+  Mayer bond orders larger than 0.100000
+B(  0-C ,  1-C ) :   3.2115 B(  0-C ,  2-H ) :   0.8650 B(  0-C ,  3-H ) :   0.1642 
+B(  1-C ,  2-H ) :   0.1643 B(  1-C ,  3-H ) :   0.8650 
+
+-------
+TIMINGS
+-------
+
+Total SCF time: 0 days 0 hours 0 min 1 sec 
+
+Total time                  ....       1.692 sec
+Sum of individual times     ....       1.499 sec  ( 88.6%)
+
+Fock matrix formation       ....       1.274 sec  ( 75.3%)
+  XC integration            ....       0.101 sec  (  7.9% of F)
+    Basis function eval.    ....       0.016 sec  ( 16.1% of XC)
+    Density eval.           ....       0.010 sec  (  9.4% of XC)
+    XC-Functional eval.     ....       0.009 sec  (  9.3% of XC)
+    XC-Potential eval.      ....       0.018 sec  ( 17.6% of XC)
+Diagonalization             ....       0.007 sec  (  0.4%)
+Density matrix formation    ....       0.002 sec  (  0.1%)
+Population analysis         ....       0.003 sec  (  0.2%)
+Initial guess               ....       0.084 sec  (  5.0%)
+Orbital Transformation      ....       0.000 sec  (  0.0%)
+Orbital Orthonormalization  ....       0.000 sec  (  0.0%)
+DIIS solution               ....       0.002 sec  (  0.1%)
+SOSCF solution              ....       0.002 sec  (  0.1%)
+Grid generation             ....       0.124 sec  (  7.3%)
+
+-------------------------   --------------------
+FINAL SINGLE POINT ENERGY       -77.332605766054
+-------------------------   --------------------
+
+
+                            ***************************************
+                            *     ORCA property calculations      *
+                            ***************************************
+
+                                    ---------------------
+                                    Active property flags
+                                    ---------------------
+   (+) Dipole Moment
+
+
+------------------------------------------------------------------------------
+                       ORCA ELECTRIC PROPERTIES CALCULATION
+------------------------------------------------------------------------------
+
+Dipole Moment Calculation                       ... on
+Quadrupole Moment Calculation                   ... off
+Polarizability Calculation                      ... off
+GBWName                                         ... TMB01_R2.gbw
+Electron density file                           ... TMB01_R2.scfp
+The origin for moment calculation is the CENTER OF MASS  = ( 0.000000,  0.000000  0.000000)
+
+-------------
+DIPOLE MOMENT
+-------------
+                                X             Y             Z
+Electronic contribution:     -0.00000       0.00000      -0.00000
+Nuclear contribution   :      0.00000       0.00000       0.00000
+                        -----------------------------------------
+Total Dipole Moment    :     -0.00000       0.00000      -0.00000
+                        -----------------------------------------
+Magnitude (a.u.)       :      0.00000
+Magnitude (Debye)      :      0.00000
+
+
+
+--------------------
+Rotational spectrum 
+--------------------
+ 
+Rotational constants in cm-1:     0.000000     1.189890     1.189890 
+Rotational constants in MHz :     0.000000 35672.008035 35672.008035 
+
+ Dipole components along the rotational axes: 
+x,y,z [a.u.] :    -0.000000     0.000000    -0.000000 
+x,y,z [Debye]:    -0.000000     0.000000    -0.000000 
+
+ 
+
+Timings for individual modules:
+
+Sum of individual times         ...        2.739 sec (=   0.046 min)
+GTO integral calculation        ...        0.663 sec (=   0.011 min)  24.2 %
+SCF iterations                  ...        2.076 sec (=   0.035 min)  75.8 %
+                             ****ORCA TERMINATED NORMALLY****
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 3 seconds 175 msec
