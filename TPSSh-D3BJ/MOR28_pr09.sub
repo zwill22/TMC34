@@ -1,26 +1,19 @@
-#!/bin/bash -l
-#PBS -N "MOR28_pr09"
-#PBS -j oe
-#PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=24:mem=144gb:mpiprocs=24
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH --tasks-per-node=28
+#SBATCH --time=24:00:00
+#SBATCH --error="%x.e%j"
+#SBATCH --output="%x.o%j"
+#SBATCH --job-name="MOR28_pr09"
+#SBATCH --mem=120G
 
-cd /work/zw18965/TMC34/TPSSh-D3BJ
-
-module load lib/openmpi
-module load apps/orca
-export orcadir="/sw/apps/orca/orca_4_2_0_linux_x86-64_openmpi314"
+module load OpenMPI/3.0.0-GCC-7.2.0-2.29 
+module load apps/orca/4.2.0
+ 
 export RSH_COMMAND="/usr/bin/ssh -x"
 
+cd /mnt/storage/scratch/zw18965/TMC34/TPSSh-D3BJ
 
-#Setup scratch directory
-cp "MOR28_pr09.in" ${TMPDIR}
-cp "MOR28_pr09.xyz" ${TMPDIR}
+echo ${SLURM_NODELIST} > MOR28_pr09.nodes
 
-# Run orca
-cd ${TMPDIR}
-export MKL_THREADING_LAYER=TBB
-
-${orcadir}/orca "MOR28_pr09.in" &> "MOR28_pr09.out"
-
-cp * /work/zw18965/TMC34/TPSSh-D3BJ
-cd /work/zw18965/TMC34/TPSSh-D3BJ
+$(which orca) "MOR28_pr09.in" &> "MOR28_pr09.out"
